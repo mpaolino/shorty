@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block page_title %}{{ _('Login') }}{% endblock %}
+{% block body_title %}{{ _('Login') }}{% endblock %}
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <p>
+            {{ message }}
+        </p>
+    {% endfor %}
+    <form id="login" method="POST">
+        <div>
+            <label>
+                {{ _('E-mail') }}:
+            </label>
+            <input type="text" name="email" id="email">
+        </div>
+        <div>
+            <label>
+                {{ _('Password') }}:
+            </label>
+            <input type="password" name="password" id="password">
+        </div>
+        <div>
+            <input type="submit">
+        </div>
+    </form>
+{% endblock %}
