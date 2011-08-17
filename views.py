@@ -8,16 +8,20 @@ from flask import (g, abort, redirect, request)
 import re
 import pdb
 
+
 @app.teardown_request
 def shutdown_session(exception=None):
     db_session.remove()
+
 
 @app.errorhandler(404)
 def page_not_found(error):
     return 'Wrong URL', 404
 
+
 def index():
     abort(404)
+
 
 def decode(encoded):
     """
@@ -38,6 +42,7 @@ def decode(encoded):
         abort(404)
     return redirect(g.decoded_url.real_url)
 
+
 def url_register(real_url):
     """
     Shorten a new URL
@@ -45,12 +50,12 @@ def url_register(real_url):
     #TODO: validate real_url
     if not real_url or len(real_url) <= 1:
         #Invalid URL, redirect to error message
-        abort(404)    
+        abort(404)
 
     already_exists = Url.query.filter(Url.real_url == real_url)
 
     if already_exists:
-        return "Already registered: http://ou.vc/%s" % already_exists.encoded_key
+        return "Duplicated: http://ou.vc/%s" % already_exists.encoded_key
 
     g.last_shortened = Url.query.order_by(desc(Url.url_id)).limit(1)
     if not g.last_shortened:

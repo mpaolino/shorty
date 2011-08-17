@@ -4,6 +4,19 @@ import tempfile
 import sys
 
 
+def mktestbed():
+    from shorty import app
+    db_fd, tmp_file = tempfile.mkstemp()
+    full_db_uri = 'sqlite:///%s' % tmp_file
+    app.config['DATABASE'] = tmp_file
+    app.config['DB_FD'] = db_fd
+    app.config['DATABASE_URI'] = full_db_uri
+    app.config['SQLALCHEMY_DATABASE_URI'] = full_db_uri
+    app.config['TESTING'] = True
+    from shorty.database import init_db
+    init_db()
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         print('Error: Not enough arguments.')
@@ -11,7 +24,6 @@ if __name__ == '__main__':
 
     if sys.argv[1] == 'shell':
         import IPython
-        from models import *
 
         mktestbed()
         IPython.Shell.start().mainloop()
@@ -34,15 +46,9 @@ if __name__ == '__main__':
         import unittest2 as unittest
         import logging
         import sys
-    
-        db_fd, tmp_file = tempfile.mkstemp()
-        full_db_uri = 'sqlite:///%s' % tmp_file
-        app.config['DATABASE'] = tmp_file
-        app.config['DB_FD'] = db_fd
-        app.config['DATABASE_URI'] = full_db_uri
-        app.config['SQLALCHEMY_DATABASE_URI'] = full_db_uri 
-        app.config['TESTING'] = True
- 
+
+        mktestbed()
+
         path = sys.argv[2] if len(sys.argv) == 3 else './tests'
         suite = unittest.loader.TestLoader().discover(path)
         unittest.TextTestRunner(verbosity=2).run(suite)
