@@ -1,23 +1,20 @@
 import os
 from shorty import app
-from shorty.database import init_db, db_session
 from shorty.models import Url
+from shorty.database import init_db, db_session
 
 import unittest2 as unittest
-import tempfile
+import pdb
 
 
 class UrlTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.db_fd, app.config['DATABASE_URI'] = tempfile.mkstemp()
-        app.config['TESTING'] = True
-        self.app = app.test_client()
         init_db()
 
     def tearDown(self):
-        os.close(self.db_fd)
-        os.unlink(app.config['DATABASE_URI'])
+        os.close(app.config['DB_FD'])
+        os.unlink(app.config['DATABASE'])
 
     def test_url(self):
         url1 = Url(real_url=u'http://cosa.com', owner_id=u'mpaolino')
@@ -25,6 +22,3 @@ class UrlTestCase(unittest.TestCase):
         db_session.commit()
         cacho = url1.encoded_key
         db_session.commit()
-
-if __name__ == '__main__':
-    unittest.main()
