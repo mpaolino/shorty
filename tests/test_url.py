@@ -22,3 +22,4 @@ class UrlTestCase(unittest.TestCase):
         db_session.commit()
         cacho = url1.encoded_key
         db_session.commit()
+        url2 = Url(real_url=u'http://cosa.com', owner_id=u'mpaolino')

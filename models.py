@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, Integer, UnicodeText, DateTime
 from shorty.database import Base
 from shorty.libs.shortener import UrlEncoder
+
+from sqlalchemy import (Column, Integer, UnicodeText, DateTime, ForeignKey)
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 
@@ -9,7 +11,7 @@ class Url(Base):
 
     __tablename__ = 'urls'
 
-    url_id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     real_url = Column(UnicodeText, unique=False, nullable=False)
     _encoded_key = Column(UnicodeText, unique=True, nullable=True)
     date_publish = Column(DateTime, nullable=False, default=datetime.now())
@@ -25,5 +27,21 @@ class Url(Base):
         if self._encoded_key:
             return self._encoded_key
         encoder = UrlEncoder()
-        self._encoded_key = encoder.encode_url(self.url_id)
+        self._encoded_key = encoder.encode_url(self.id)
         return self._encoded_key
+
+
+class Expansion(Base):
+
+    __tablename__ = 'expansions'
+
+    id = Column(Integer, primary_key=True)
+    url_id = Column(Integer, ForeignKey('urls.id'))
+    url = relationship(Url, primaryjoin=url_id == Url.id)
+    detection_date = Column(DateTime, nullable=False, default=datetime.now())
+    agent = Column(UnicodeText, unique=False, nullable=True)
+
+    def __init__(self, url, agent):
+        self.url = url
+        self.agent_id = agent
+        self.detection_date = datetime.now()

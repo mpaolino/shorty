@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import app
 import shorty.libs.shortener as shortener
-from shorty.models import Url
+from shorty.models import (Url, Expansion)
 from shorty.database import db_session
 from flask import (g, abort, redirect, request)
 
@@ -36,30 +36,45 @@ def decode(encoded):
     except ValueError, e:
         abort(404)
 
-    g.decoded_url = Url.query.filter(Url.url_id == decoded_key).first()
+    g.decoded_url = Url.query.filter_by(id=decoded_key).first()
 
     if not g.decoded_url:
         abort(404)
+
+    new_url_expansion = Expansion(g.decoded_url, 'testagent')
+    db_session.add(new_url_expansion)
+    # We need to first commit to DB so it's unique integer id is assigned
+    db_session.commit()
     return redirect(g.decoded_url.real_url)
 
 
-def url_register(real_url):
+def url_register():
     """
     Shorten a new URL
     """
-    #TODO: validate real_url
-    if not real_url or len(real_url) <= 1:
-        #Invalid URL, redirect to error message
-        abort(404)
+    form = request.form
+    if 'url' not in form or 'owner' not in form:
+        abort(500)
 
-    already_exists = Url.query.filter(Url.real_url == real_url)
+    reg_url = form['url']
+    reg_owner = form['owner']
+    #TODO: validate well formed reg_url
+    if not reg_url or len(reg_url) <= 1 or not reg_owner\
+             or len(reg_owner) <= 1:
+        #Invalid URL, redirect to error message
+        abort(500)
+
+    already_exists = Url.query.filter_by(real_url=reg_url,
+                                         owner_id=reg_owner).first()
 
     if already_exists:
-        return "Duplicated: http://ou.vc/%s" % already_exists.encoded_key
+        return "Already exists: http://ou.vc/%s" % already_exists.encoded_key
 
-    g.last_shortened = Url.query.order_by(desc(Url.url_id)).limit(1)
-    if not g.last_shortened:
-        abort(404)
-    shorten_url = g.last_shortened.encoded_key
+    new_url = Url(real_url=reg_url, owner_id=reg_owner)
+    db_session.add(new_url)
+    # We need to first commit to DB so it's unique integer id is assigned
     db_session.commit()
-    return "Success! URL added: http://ou.vc/%s" % shorten_url
+    # Only then we can ask for the encoded_key, and it will be calculated
+    encoded_key = new_url.encoded_key
+    db_session.commit()
+    return "Success! URL added: http://ou.vc/%s" % encoded_key
