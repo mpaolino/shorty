@@ -80,7 +80,8 @@ def url_register():
                                          owner_id=reg_owner).first()
 
     if already_exists:
-        return "Already exists: http://ou.vc/%s" % already_exists.encoded_key
+        return "Already exists: %s%s" % (request.url_root,
+                 already_exists.encoded_key)
 
     new_url = Url(real_url=reg_url, owner_id=reg_owner)
     db_session.add(new_url)
@@ -89,4 +90,4 @@ def url_register():
     # Only then we can ask for the encoded_key, and it will be calculated
     encoded_key = new_url.encoded_key
     db_session.commit()
-    return "Success! URL added: http://ou.vc/%s" % encoded_key
+    return "%s%s" % (request.url_root, encoded_key)
