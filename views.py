@@ -41,7 +41,9 @@ def decode(encoded):
     if not g.decoded_url:
         abort(404)
 
-    new_url_expansion = Expansion(g.decoded_url, 'testagent')
+    user_agent = request.user_agent
+    new_url_expansion = Expansion(g.decoded_url, user_agent.string,
+                                  user_agent.browser, user_agent.platform)
     db_session.add(new_url_expansion)
     # We need to first commit to DB so it's unique integer id is assigned
     db_session.commit()
