@@ -39,13 +39,21 @@ class Expansion(Base):
     url_id = Column(Integer, ForeignKey('urls.id'))
     url = relationship(Url, primaryjoin=url_id == Url.id)
     detection_date = Column(DateTime, nullable=False, default=datetime.now())
-    user_agent = Column(UnicodeText, unique=False, nullable=True)
-    browser = Column(UnicodeText, unique=False, nullable=True)
-    platform = Column(UnicodeText, unique=False, nullable=True)
+    ua_string = Column(UnicodeText, unique=False, nullable=True)
+    ua_name = Column(UnicodeText, unique=False, nullable=True)
+    ua_family = Column(UnicodeText, unique=False, nullable=True)
+    ua_company = Column(UnicodeText, unique=False, nullable=True)
+    ua_type = Column(UnicodeText, unique=False, nullable=True)
+    os_family = Column(UnicodeText, unique=False, nullable=True)
 
-    def __init__(self, url, user_agent, browser, platform):
+    def __init__(self, url, ua_string, ua_name, ua_family, ua_company, ua_type,
+                    os_name, os_family):
         self.url = url
-        self.user_agent = user_agent
-        self.browser = browser
-        self.platform = platform
+        self.ua_string = ua_string
+        self.ua_name = ua_name
+        self.ua_family = ua_family
+        self.ua_company = ua_company
+        self.ua_type = ua_type
+        self.os_name = os_name
+        self.os_family = os_family
         self.detection_date = datetime.now()

@@ -42,10 +42,20 @@ def decode(encoded):
         abort(404)
 
     user_agent = request.user_agent
+
+    from libs.uasparser import UASparser
+    uas_parser = UASparser(app.config['UAS_CACHE_DIR'])
+    uas_result = uas_parser.parse(user_agent.string)
+
     new_url_expansion = Expansion(g.decoded_url, user_agent.string,
-                                  user_agent.browser, user_agent.platform)
+                                  uas_result['ua_name'],
+                                  uas_result['ua_family'],
+                                  uas_result['ua_company'],
+                                  uas_result['typ'],
+                                  uas_result['os_name'],
+                                  uas_result['os_family'])
+
     db_session.add(new_url_expansion)
-    # We need to first commit to DB so it's unique integer id is assigned
     db_session.commit()
     return redirect(g.decoded_url.real_url)
 
