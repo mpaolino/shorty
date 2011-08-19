@@ -2,7 +2,8 @@
 from shorty.database import Base
 from shorty.libs.shortener import UrlEncoder
 
-from sqlalchemy import (Column, Integer, UnicodeText, DateTime, ForeignKey)
+from sqlalchemy import (Column, Integer, UnicodeText, String, DateTime,
+                        ForeignKey)
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -13,7 +14,7 @@ class Url(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     real_url = Column(UnicodeText, unique=False, nullable=False)
-    _encoded_key = Column(UnicodeText, unique=True, nullable=True)
+    _encoded_key = Column(String(6), unique=True, nullable=True)
     date_publish = Column(DateTime, nullable=False, default=datetime.now())
     owner_id = Column(UnicodeText, unique=False, nullable=False)
 
