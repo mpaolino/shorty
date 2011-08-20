@@ -16,3 +16,4 @@ CSRF_ENABLED = True
 DEFAULT_CHARSET = 'utf-8'
 
 UAS_CACHE_DIR = '%s/libs/uas_cache' % (PROJECT_DIR)
+RESULTS_PER_PAGE = 5000

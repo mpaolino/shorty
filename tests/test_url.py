@@ -1,7 +1,7 @@
 import os
 from shorty import app
 from shorty.models import Url
-from shorty.database import init_db, db_session
+from shorty.database import init_db, db
 
 import unittest2 as unittest
 import pdb
@@ -18,8 +18,8 @@ class UrlTestCase(unittest.TestCase):
 
     def test_url(self):
         url1 = Url(real_url=u'http://cosa.com', owner_id=u'mpaolino')
-        db_session.add(url1)
-        db_session.commit()
+        db.session.add(url1)
+        db.session.commit()
         cacho = url1.encoded_key
-        db_session.commit()
+        db.session.commit()
         url2 = Url(real_url=u'http://cosa.com', owner_id=u'mpaolino')

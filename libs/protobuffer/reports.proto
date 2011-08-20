@@ -1,0 +1,28 @@
+message ExpansionsRequest {
+  optional string short_token = 1;
+  optional string owner = 2;
+  
+  optional int64 start_date = 3;
+  optional int64 end_date = 4;
+}
+
+message ExpansionsResponse {
+  optional string short_token = 1;
+  optional string owner = 2;
+
+  message Expansion {
+      optional int32 url_id = 1;
+      optional int64 detection_date = 2;
+      optional string ua_string = 3;
+      optional string ua_name = 4;
+      optional string ua_family = 5;
+      optional string ua_company = 6;
+      optional string ua_type = 7;
+      optional string os_family = 8;
+  }
+
+  optional int32 page_number = 3;
+  optional int32 results_per_page = 4;
+  optional int32 page_count = 5;
+  repeated Expansion expansion = 6;
+}
