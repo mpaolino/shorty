@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from shorty import app
 # load the middleware from werkzeug
 # This middleware can be applied to add HTTP proxy support to an application
