@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import app
+from shorty import app
 from flaskext.sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy(app)
