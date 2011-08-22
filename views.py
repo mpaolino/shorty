@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-from . import app
-import libs.shortener as shortener
-from libs.protobuffer import reports_pb2
-from libs.uasparser import UASparser
-from models import (Url, Expansion)
-from database import db
-from flask import (g, abort, redirect, request, send_file, make_response)
+from shorty import app
+from shorty.database import db
+from shorty.libs import shortener
+from shorty.libs.protobuffer import reports_pb2
+from shorty.libs.uasparser import UASparser
+from shorty.models import Url, Expansion
+
+from flask import g, abort, redirect, request, send_file, make_response
 
 import re
 import calendar
-
-import pdb
 
 
 @app.errorhandler(404)
