@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from shorty import app
 from shorty.models import Url
