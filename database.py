@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from shorty import app
-from flaskext.sqlalchemy import SQLAlchemy
+#from flaskext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy(app)
 
