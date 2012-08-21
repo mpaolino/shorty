@@ -49,6 +49,6 @@ if __name__ == '__main__':
 
         mktestbed()
 
-        path = sys.argv[2] if len(sys.argv) == 3 else './tests'
+        path = sys.argv[2] if len(sys.argv) == 3 else 'shorty/tests'
         suite = unittest.loader.TestLoader().discover(path)
         unittest.TextTestRunner(verbosity=2).run(suite)

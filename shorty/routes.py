@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from shorty import app
-from shorty.views import index, decode
+from shorty.views import index, decode, url_register, reports
 
 url = app.add_url_rule
 
