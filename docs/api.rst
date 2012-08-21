@@ -53,5 +53,5 @@ Response
 --------
 Status: 200 OK
 <Protocolbuffer serialized object with results as described in .proto in
- libs/protobuffer/reports.proto>
+ shorty/libs/protobuffer/reports.proto>
 
