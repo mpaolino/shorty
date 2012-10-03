@@ -21,7 +21,7 @@ Redirection to long URL
 Register short URL (private)
 ============================
 
-POST /register
+POST /api/register
 
 Input
 -----
@@ -38,7 +38,7 @@ Status: 200 OK
 Reports (private)
 =================
 
-POST /reports
+POST /api/reports
 
 Input
 -----
@@ -55,3 +55,23 @@ Status: 200 OK
 <Protocolbuffer serialized object with results as described in .proto in
  libs/protobuffer/reports.proto>
 
+
+QR generation
+=============
+
+Accepts an URL and returns a PDF with a QR, if the URL is not registered 
+it will previously register it.
+
+[POST|GET] /api/generateqr
+
+
+Input
+-----
+{
+  "url": "http://so.me/long/url/that/is/to/be/shorten",
+  "owner": "one-owner",
+}
+
+Response
+--------
+HTTP binary transfer with PDF file.
