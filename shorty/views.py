@@ -21,7 +21,7 @@ import ipdb
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return 'Wrong URL', 404
+    return 'Sorry, wrong URL', 404
 
 
 @app.errorhandler(ValidationFailed)
@@ -142,28 +142,59 @@ def reports():
     paginated = Expansion.query.join(Url).filter_by(id=decoded_key)\
                                         .paginate(page=page, per_page=per_page)
 
-    results = reports_pb2.ExpansionsResponse()
-    results.short_token = short
-    results.owner = owner
-    results.page_number = paginated.page
-    results.results_per_page = paginated.per_page
-    results.page_count = paginated.pages
-    encoding = app.config['DEFAULT_CHARSET']
-    for result in paginated.items:
-        one_result = results.expansion.add()
-        one_result.url_id = result.url_id
-        detect_unix_ts = calendar.timegm(result.detection_date.utctimetuple())
-        one_result.detection_date = detect_unix_ts
-        one_result.ua_string = result.ua_string.encode(encoding)
-        one_result.ua_name = result.ua_name.encode(encoding)
-        one_result.ua_family = result.ua_family.encode(encoding)
-        one_result.ua_company = result.ua_company.encode(encoding)
-        one_result.ua_type = result.ua_type.encode(encoding)
-        one_result.os_family = result.os_family.encode(encoding)
+    result_output = app.config['RESULTS_OUTPUT']
+    if result_output != 'json' or result_output != 'protobuf':
+        result_output = 'json'
 
-    response = make_response(results.SerializeToString())
-    response.headers["Content-type"] = "application/x-protobuffer"
-    return response
+    if result_output == 'json':
+        results = {'short_url': short, 'owner': owner,
+                   'page_number': paginated.page,
+                   'results_per_page': paginated.per_page,
+                   'page_count': paginated.pages,
+                   'expansions': []}
+
+        for result in paginated.items:
+            detect_unix_ts = calendar.timegm(
+                                         result.detection_date.utctimetuple())
+            one_result = {'url_id': result.url_id,
+                          'detection_date': detect_unix_ts,
+                          'ua_string': result.ua_string,
+                          'ua_name': result.ua_name,
+                          'ua_family': result.ua_family,
+                          'ua_company': result.ua_company,
+                          'ua_type': result.ua_type,
+                          'os_family': result.os_family}
+
+            results['expansions'].append(one_result)
+        return jsonify(results)
+
+    if result_output == 'protobuf':
+        results = reports_pb2.ExpansionsResponse()
+        results.short_token = short
+        results.owner = owner
+        results.page_number = paginated.page
+        results.results_per_page = paginated.per_page
+        results.page_count = paginated.pages
+        encoding = app.config['DEFAULT_CHARSET']
+
+        for result in paginated.items:
+            one_result = results.expansion.add()
+            one_result.url_id = result.url_id
+            detect_unix_ts = calendar.timegm(
+                                         result.detection_date.utctimetuple())
+            one_result.detection_date = detect_unix_ts
+            one_result.ua_string = result.ua_string.encode(encoding)
+            one_result.ua_name = result.ua_name.encode(encoding)
+            one_result.ua_family = result.ua_family.encode(encoding)
+            one_result.ua_company = result.ua_company.encode(encoding)
+            one_result.ua_type = result.ua_type.encode(encoding)
+            one_result.os_family = result.os_family.encode(encoding)
+
+        response = make_response(results.SerializeToString())
+        response.headers["Content-type"] = "application/x-protobuffer"
+        return response
+
+    abort(500)
 
 
 def generateqr():
