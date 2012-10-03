@@ -227,7 +227,7 @@ def generateqr_ceibal():
         return value
 
     application = get_optional('application', 'interior', validate_application)
-    appsize = get_optional('appsize', 'medium', validate_application_size)
+    appsize = get_optional('appsize', 'small', validate_application_size)
     style = get_optional('style', 'heavyround', validate_style)
     style_color = get_optional('stylecolor', '#195805', validate_color)
     inner_eye_style = get_optional('innereyestyle', 'heavyround',
