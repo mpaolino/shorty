@@ -228,10 +228,12 @@ def generateqr_ceibal():
 
     application = get_optional('application', 'interior', validate_application)
     appsize = get_optional('appsize', 'small', validate_application_size)
-    style = get_optional('style', 'default', validate_style)
+    style = get_optional('style', 'heavyround', validate_style)
     style_color = get_optional('stylecolor', '#195805', validate_color)
-    inner_eye_style = get_optional('innereyestyle', 'default', validate_style)
-    outer_eye_style = get_optional('outereyestyle', 'default', validate_style)
+    inner_eye_style = get_optional('innereyestyle', 'heavyround',
+                                   validate_style)
+    outer_eye_style = get_optional('outereyestyle', 'heavyround',
+                                   validate_style)
     inner_eye_color = get_optional('innereyecolor', '#C21217', validate_color)
     outer_eye_color = get_optional('outereyecolor', '#22C13E', validate_color)
     bg_color = get_optional('bgcolor', '#FFFFFF', validate_color)
