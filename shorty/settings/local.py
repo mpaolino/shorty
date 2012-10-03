@@ -11,3 +11,5 @@ MANAGERS = ADMINS
 
 SECRET_KEY = ''
 SERVER_EMAIL = 'root@localhost'
+
+ALLOWED_REFERRERS_REGEXP = r'^http[s]*://[www\.]*ceibal.edu.uy'

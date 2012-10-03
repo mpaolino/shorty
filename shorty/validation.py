@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from shorty.settings.local import ALLOWED_REFERRERS_REGEXP
 import re
 
 
@@ -14,6 +15,12 @@ class ValidationFailed(Exception):
 
 def validate_url(url):
     if isinstance(url, (str, unicode)) and len(url) > 4:
+        return True
+    return False
+
+def validate_url_ceibal(url):
+    if isinstance(url, (str, unicode)) and \
+            re.match(ALLOWED_REFERRERS_REGEXP, url) :
         return True
     return False
 
