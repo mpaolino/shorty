@@ -202,91 +202,6 @@ def generateqr_ceibal():
     values = request.values
     validation_errors = []
 
-    url = request.referrer
-    if url:
-        if not validate_url_ceibal(url):
-            validation_errors.append({'resource': "url",
-                                      'field': "url",
-                                      'code': "invalid"})
-    else:
-        validation_errors.append({'resource': "url",
-                                  'field': "url",
-                                  'code': "missing_field"})
-
-    owner = 'ceibal'
-
-    def get_optional(name, default, validator):
-        value = values.get(name)
-        if value == None:
-            return default
-        if callable(validator) and not validator(value):
-            validation_errors.append({'resource': "url",
-                                      'field': name,
-                                      'code': "invalid"})
-            return default
-        return value
-
-    application = get_optional('application', 'interior', validate_application)
-    appsize = get_optional('appsize', 'small', validate_application_size)
-    style = get_optional('style', 'heavyround', validate_style)
-    style_color = get_optional('stylecolor', '#195805', validate_color)
-    inner_eye_style = get_optional('innereyestyle', 'heavyround',
-                                   validate_style)
-    outer_eye_style = get_optional('outereyestyle', 'heavyround',
-                                   validate_style)
-    inner_eye_color = get_optional('innereyecolor', '#C21217', validate_color)
-    outer_eye_color = get_optional('outereyecolor', '#22C13E', validate_color)
-    bg_color = get_optional('bgcolor', '#FFFFFF', validate_color)
-
-    if validation_errors:
-        raise ValidationFailed(validation_errors)
-
-    already_exists = Url.query.filter_by(real_url=url,
-                                         owner_id=owner).first()
-    encoded_key = None
-    if already_exists:
-        encoded_key = already_exists.encoded_key
-    else:
-        new_url = Url(real_url=url, owner_id=owner)
-        db.session.add(new_url)
-        # We need to first commit to DB so it's unique integer id is assigned
-        # and no race conditions can take place, backend DB atomic operations
-        # must assure that
-        db.session.commit()
-        # Only then we can ask for the encoded_key, and it will be calculated
-        encoded_key = new_url.encoded_key
-        db.session.commit()
-
-    pdf_filelike = None
-    try:
-        pdf_filelike = generate_qr_file("%s%s" % (request.url_root,
-                                        encoded_key),
-                                        app=application,
-                                        app_size=appsize,
-                                        style=style,
-                                        style_color=style_color,
-                                        inner_eye_style=inner_eye_style,
-                                        inner_eye_color=inner_eye_color,
-                                        outer_eye_style=outer_eye_style,
-                                        outer_eye_color=outer_eye_color,
-                                        bg_color=bg_color,
-                                        qr_format='PDF')
-
-        pdf_filelike.seek(0)
-    except Exception, e:
-        print e
-        abort(500)
-    else:
-        return send_file(pdf_filelike, mimetype=u'application/pdf')
-
-
-def generateqr():
-    """
-    Return QR for given URL
-    """
-    values = request.values
-    validation_errors = []
-
     url = values.get('url')
     if url:
         if not validate_url(url):
@@ -323,12 +238,14 @@ def generateqr():
 
     application = get_optional('application', 'interior', validate_application)
     appsize = get_optional('appsize', 'small', validate_application_size)
-    style = get_optional('style', 'default', validate_style)
-    style_color = get_optional('stylecolor', '#000000', validate_color)
-    inner_eye_style = get_optional('innereyestyle', 'default', validate_style)
-    outer_eye_style = get_optional('outereyestyle', 'default', validate_style)
-    inner_eye_color = get_optional('innereyecolor', '#000000', validate_color)
-    outer_eye_color = get_optional('outereyecolor', '#000000', validate_color)
+    style = get_optional('style', 'heavyround', validate_style)
+    style_color = get_optional('stylecolor', '#195805', validate_color)
+    inner_eye_style = get_optional('innereyestyle', 'heavyround',
+                                   validate_style)
+    outer_eye_style = get_optional('outereyestyle', 'heavyround',
+                                   validate_style)
+    inner_eye_color = get_optional('innereyecolor', '#C21217', validate_color)
+    outer_eye_color = get_optional('outereyecolor', '#22C13E', validate_color)
     bg_color = get_optional('bgcolor', '#FFFFFF', validate_color)
     qr_format = get_optional('qrformat', 'PDF', validate_qr_format)
 
