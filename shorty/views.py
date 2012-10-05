@@ -69,41 +69,6 @@ def decode(encoded):
     return redirect(decoded_url.real_url)
 
 
-def url_register():
-    """
-    Shorten a new URL
-    """
-    form = request.form
-    if 'url' not in form or 'owner' not in form:
-        abort(501)
-
-    reg_url = form['url']
-    reg_owner = form['owner']
-    #TODO: validate well formed reg_url
-    if not reg_url or len(reg_url) <= 1 or not reg_owner\
-             or len(reg_owner) <= 1:
-        #Invalid form data, redirect to error message
-        abort(501)
-
-    already_exists = Url.query.filter_by(real_url=reg_url,
-                                         owner_id=reg_owner).first()
-
-    if already_exists:
-        return "Already exists: %s%s" % (request.url_root,
-                 already_exists.encoded_key)
-
-    new_url = Url(real_url=reg_url, owner_id=reg_owner)
-    db.session.add(new_url)
-    # We need to first commit to DB so it's unique integer id is assigned
-    # and no race conditions can take place, backend DB atomic operations
-    # must assure that
-    db.session.commit()
-    # Only then we can ask for the encoded_key, and it will be calculated
-    encoded_key = new_url.encoded_key
-    db.session.commit()
-    return "%s%s" % (request.url_root, encoded_key)
-
-
 def reports():
     """
     Get reports for shorten URL token
