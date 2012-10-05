@@ -35,7 +35,7 @@ def validate_application_size(appsize):
         appsize = appsize.lower()
     else:
         return False
-    all_sizes = ['large', 'medium', 'small']
+    all_sizes = set(['large', 'medium', 'small'])
     if appsize in all_sizes:
         return True
     return False
@@ -46,10 +46,18 @@ def validate_application(application):
         application = application.lower()
     else:
         return False
-    if application in ('interior', 'exterior'):
+    if application in set(['interior', 'exterior']):
         return True
     return False
 
+def validate_qr_format(qr_format):
+    if isinstance(qr_format, (unicode, str)):
+        qr_format = qr_format.upper()
+    else:
+        return False
+    if qr_format in set(['PDF', 'PNG', 'GIF', 'JPEG']):
+        return True
+    return False
 
 def validate_color(color):
     if not isinstance(color, (unicode, str)):

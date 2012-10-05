@@ -8,7 +8,7 @@ from shorty.models import Url, Expansion
 from shorty.validation import (ValidationFailed, validate_url,
                                validate_owner, validate_color,
                                validate_application, validate_application_size,
-                               validate_style)
+                               validate_style, validate_qr_format)
 
 from qrlib import generate_qr_file
 
@@ -248,6 +248,7 @@ def generateqr():
     inner_eye_color = get_optional('innereyecolor', '#000000', validate_color)
     outer_eye_color = get_optional('outereyecolor', '#000000', validate_color)
     bg_color = get_optional('bgcolor', '#FFFFFF', validate_color)
+    qr_format = get_optional('qrformat', 'PDF', validate_qr_format)
 
     if validation_errors:
         raise ValidationFailed(validation_errors)
@@ -281,11 +282,20 @@ def generateqr():
                                         outer_eye_style=outer_eye_style,
                                         outer_eye_color=outer_eye_color,
                                         bg_color=bg_color,
-                                        qr_format='PDF')
+                                        qr_format=qr_format)
 
         pdf_filelike.seek(0)
     except Exception, e:
         print e
         abort(500)
     else:
-        return send_file(pdf_filelike, mimetype=u'application/pdf')
+        if qr_format.upper() == 'PDF':
+            mimetype = u'application/pdf'
+        elif qr_format.upper() == 'PNG':
+            mimetype = u'image/png'
+        elif qr_format.upper() == 'GIF':
+            mimetype = u'image/gif'
+        elif qr_format.upper() == 'JPEG':
+            mimetype = u'image/jpeg'
+
+        return send_file(pdf_filelike, mimetype=mimetype)
