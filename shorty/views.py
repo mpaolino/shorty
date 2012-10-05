@@ -9,14 +9,11 @@ from shorty.validation import (ValidationFailed, validate_url,
                                validate_owner, validate_color,
                                validate_application, validate_application_size,
                                validate_style, validate_qr_format)
-
 from qrlib import generate_qr_file
 
 from flask import (abort, redirect, request, send_file, make_response, jsonify)
-
 import re
 import calendar
-import ipdb
 
 
 @app.errorhandler(404)
@@ -26,9 +23,9 @@ def page_not_found(error):
 
 @app.errorhandler(ValidationFailed)
 def validation_error(val_failed):
-    return (jsonify(message='Validation Error',
-                    errors=val_failed.errors),
-            422)
+    response = jsonify(message='Validation Error', errors=val_failed.errors)
+    response.status_code = 422
+    return response
 
 
 def index():
