@@ -9,7 +9,8 @@ from shorty.validation import (ValidationFailed, validate_url,
                                validate_owner, validate_color,
                                validate_application, validate_application_size,
                                validate_style, validate_qr_format)
-from qrlib import generate_qr_file
+from qrlib import (generate_qr_file, InnerEyeStyleMissing,
+                   OuterEyeStyleMissing, StyleMissing)
 
 from flask import (abort, redirect, request, send_file, make_response, jsonify)
 import re
@@ -282,17 +283,33 @@ def generateqr():
                                         qr_format=qr_format)
 
         pdf_filelike.seek(0)
+    except InnerEyeStyleMissing:
+        validation_errors.append({'resource': "url",
+                                  'field': 'innereyestyle',
+                                  'code': "invalid"})
+        raise ValidationFailed(validation_errors)
+    except OuterEyeStyleMissing:
+        validation_errors.append({'resource': "url",
+                                  'field': 'outereyestyle',
+                                  'code': "invalid"})
+        raise ValidationFailed(validation_errors)
+    except StyleMissing:
+        validation_errors.append({'resource': "url",
+                                  'field': 'style',
+                                  'code': "invalid"})
+        raise ValidationFailed(validation_errors)
     except Exception, e:
         print e
         abort(500)
     else:
-        if qr_format.upper() == 'PDF':
+        qr_format = qr_format.upper()
+        if qr_format == 'PDF':
             mimetype = u'application/pdf'
-        elif qr_format.upper() == 'PNG':
+        elif qr_format == 'PNG':
             mimetype = u'image/png'
-        elif qr_format.upper() == 'GIF':
+        elif qr_format == 'GIF':
             mimetype = u'image/gif'
-        elif qr_format.upper() == 'JPEG':
+        elif qr_format == 'JPEG':
             mimetype = u'image/jpeg'
 
         return send_file(pdf_filelike, mimetype=mimetype)
