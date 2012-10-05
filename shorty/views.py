@@ -21,7 +21,7 @@ import ipdb
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return 'Sorry, wrong URL', 404
+    return ('Sorry, wrong URL', 404)
 
 
 @app.errorhandler(ValidationFailed)
