@@ -11,7 +11,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = descriptor.FileDescriptor(
   name='reports.proto',
   package='',
-  serialized_pb='\n\rreports.proto\"]\n\x11\x45xpansionsRequest\x12\x13\n\x0bshort_token\x18\x01 \x01(\t\x12\r\n\x05owner\x18\x02 \x01(\t\x12\x12\n\nstart_date\x18\x03 \x01(\x03\x12\x10\n\x08\x65nd_date\x18\x04 \x01(\x03\"\xd2\x02\n\x12\x45xpansionsResponse\x12\x13\n\x0bshort_token\x18\x01 \x01(\t\x12\r\n\x05owner\x18\x02 \x01(\t\x12\x13\n\x0bpage_number\x18\x03 \x01(\x05\x12\x18\n\x10results_per_page\x18\x04 \x01(\x05\x12\x12\n\npage_count\x18\x05 \x01(\x05\x12\x30\n\texpansion\x18\x06 \x03(\x0b\x32\x1d.ExpansionsResponse.Expansion\x1a\xa2\x01\n\tExpansion\x12\x0e\n\x06url_id\x18\x01 \x01(\x05\x12\x16\n\x0e\x64\x65tection_date\x18\x02 \x01(\x03\x12\x11\n\tua_string\x18\x03 \x01(\t\x12\x0f\n\x07ua_name\x18\x04 \x01(\t\x12\x11\n\tua_family\x18\x05 \x01(\t\x12\x12\n\nua_company\x18\x06 \x01(\t\x12\x0f\n\x07ua_type\x18\x07 \x01(\t\x12\x11\n\tos_family\x18\x08 \x01(\t')
+  serialized_pb='\n\rreports.proto\"s\n\x11\x45xpansionsRequest\x12\r\n\x05short\x18\x01 \x01(\t\x12\x0c\n\x04user\x18\x02 \x01(\t\x12\x0e\n\x06target\x18\x03 \x01(\t\x12\x0b\n\x03url\x18\x04 \x01(\t\x12\x12\n\nstart_date\x18\x05 \x01(\t\x12\x10\n\x08\x65nd_date\x18\x06 \x01(\t\"\xd8\x02\n\x12\x45xpansionsResponse\x12\r\n\x05short\x18\x01 \x01(\t\x12\x0c\n\x04user\x18\x02 \x01(\t\x12\x0b\n\x03url\x18\x03 \x01(\t\x12\x0e\n\x06target\x18\x04 \x01(\t\x12\x13\n\x0bpage_number\x18\x05 \x01(\x05\x12\x18\n\x10results_per_page\x18\x06 \x01(\x05\x12\x12\n\npage_count\x18\x07 \x01(\x05\x12\x30\n\texpansion\x18\x08 \x03(\x0b\x32\x1d.ExpansionsResponse.Expansion\x1a\x92\x01\n\tExpansion\x12\x16\n\x0e\x64\x65tection_date\x18\x01 \x01(\t\x12\x11\n\tua_string\x18\x02 \x01(\t\x12\x0f\n\x07ua_name\x18\x03 \x01(\t\x12\x11\n\tua_family\x18\x04 \x01(\t\x12\x12\n\nua_company\x18\x05 \x01(\t\x12\x0f\n\x07ua_type\x18\x06 \x01(\t\x12\x11\n\tos_family\x18\x07 \x01(\t')
 
 
 
@@ -24,30 +24,44 @@ _EXPANSIONSREQUEST = descriptor.Descriptor(
   containing_type=None,
   fields=[
     descriptor.FieldDescriptor(
-      name='short_token', full_name='ExpansionsRequest.short_token', index=0,
+      name='short', full_name='ExpansionsRequest.short', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='owner', full_name='ExpansionsRequest.owner', index=1,
+      name='user', full_name='ExpansionsRequest.user', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='start_date', full_name='ExpansionsRequest.start_date', index=2,
-      number=3, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
+      name='target', full_name='ExpansionsRequest.target', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='end_date', full_name='ExpansionsRequest.end_date', index=3,
-      number=4, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
+      name='url', full_name='ExpansionsRequest.url', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='start_date', full_name='ExpansionsRequest.start_date', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='end_date', full_name='ExpansionsRequest.end_date', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -61,7 +75,7 @@ _EXPANSIONSREQUEST = descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=17,
-  serialized_end=110,
+  serialized_end=132,
 )
 
 
@@ -73,57 +87,50 @@ _EXPANSIONSRESPONSE_EXPANSION = descriptor.Descriptor(
   containing_type=None,
   fields=[
     descriptor.FieldDescriptor(
-      name='url_id', full_name='ExpansionsResponse.Expansion.url_id', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
+      name='detection_date', full_name='ExpansionsResponse.Expansion.detection_date', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='detection_date', full_name='ExpansionsResponse.Expansion.detection_date', index=1,
-      number=2, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
+      name='ua_string', full_name='ExpansionsResponse.Expansion.ua_string', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='ua_string', full_name='ExpansionsResponse.Expansion.ua_string', index=2,
+      name='ua_name', full_name='ExpansionsResponse.Expansion.ua_name', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='ua_name', full_name='ExpansionsResponse.Expansion.ua_name', index=3,
+      name='ua_family', full_name='ExpansionsResponse.Expansion.ua_family', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='ua_family', full_name='ExpansionsResponse.Expansion.ua_family', index=4,
+      name='ua_company', full_name='ExpansionsResponse.Expansion.ua_company', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='ua_company', full_name='ExpansionsResponse.Expansion.ua_company', index=5,
+      name='ua_type', full_name='ExpansionsResponse.Expansion.ua_type', index=5,
       number=6, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='ua_type', full_name='ExpansionsResponse.Expansion.ua_type', index=6,
+      name='os_family', full_name='ExpansionsResponse.Expansion.os_family', index=6,
       number=7, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=unicode("", "utf-8"),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='os_family', full_name='ExpansionsResponse.Expansion.os_family', index=7,
-      number=8, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -137,8 +144,8 @@ _EXPANSIONSRESPONSE_EXPANSION = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=289,
-  serialized_end=451,
+  serialized_start=333,
+  serialized_end=479,
 )
 
 _EXPANSIONSRESPONSE = descriptor.Descriptor(
@@ -149,43 +156,57 @@ _EXPANSIONSRESPONSE = descriptor.Descriptor(
   containing_type=None,
   fields=[
     descriptor.FieldDescriptor(
-      name='short_token', full_name='ExpansionsResponse.short_token', index=0,
+      name='short', full_name='ExpansionsResponse.short', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='owner', full_name='ExpansionsResponse.owner', index=1,
+      name='user', full_name='ExpansionsResponse.user', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='page_number', full_name='ExpansionsResponse.page_number', index=2,
-      number=3, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
+      name='url', full_name='ExpansionsResponse.url', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='results_per_page', full_name='ExpansionsResponse.results_per_page', index=3,
-      number=4, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
+      name='target', full_name='ExpansionsResponse.target', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='page_count', full_name='ExpansionsResponse.page_count', index=4,
+      name='page_number', full_name='ExpansionsResponse.page_number', index=4,
       number=5, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='expansion', full_name='ExpansionsResponse.expansion', index=5,
-      number=6, type=11, cpp_type=10, label=3,
+      name='results_per_page', full_name='ExpansionsResponse.results_per_page', index=5,
+      number=6, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='page_count', full_name='ExpansionsResponse.page_count', index=6,
+      number=7, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='expansion', full_name='ExpansionsResponse.expansion', index=7,
+      number=8, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -199,8 +220,8 @@ _EXPANSIONSRESPONSE = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=113,
-  serialized_end=451,
+  serialized_start=135,
+  serialized_end=479,
 )
 
 _EXPANSIONSRESPONSE_EXPANSION.containing_type = _EXPANSIONSRESPONSE;

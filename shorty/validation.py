@@ -12,7 +12,15 @@ class ValidationFailed(Exception):
         return "ValidationError"
 
 
+def validate_user(user):
+    if isinstance(user, (str, unicode)) and \
+            re.match('^[a-z,A-Z,0-9]{1,10}$', user):
+        return True
+    return False
+
+
 def validate_url(url):
+    #TODO: proper URL validation
     if isinstance(url, (str, unicode)) and len(url) > 4:
         return True
     return False
@@ -50,6 +58,7 @@ def validate_application(application):
         return True
     return False
 
+
 def validate_qr_format(qr_format):
     if isinstance(qr_format, (unicode, str)):
         qr_format = qr_format.upper()
@@ -58,6 +67,7 @@ def validate_qr_format(qr_format):
     if qr_format in set(['PDF', 'PNG', 'GIF', 'JPEG']):
         return True
     return False
+
 
 def validate_color(color):
     if not isinstance(color, (unicode, str)):

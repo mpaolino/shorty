@@ -8,18 +8,13 @@ from shorty.models import Url, Expansion
 from shorty.validation import (ValidationFailed, validate_url,
                                validate_owner, validate_color,
                                validate_application, validate_application_size,
-                               validate_style, validate_qr_format)
+                               validate_style, validate_qr_format,
+                               validate_user)
 from qrlib import (generate_qr_file, InnerEyeStyleMissing,
                    OuterEyeStyleMissing, StyleMissing)
 
 from flask import (abort, redirect, request, send_file, make_response, jsonify)
 import re
-import calendar
-
-
-@app.errorhandler(404)
-def page_not_found(error):
-    return 'Sorry, wrong URL', 404
 
 
 @app.errorhandler(ValidationFailed)
@@ -46,10 +41,7 @@ def decode(encoded):
     except ValueError:
         abort(404)
 
-    decoded_url = Url.query.filter_by(id=decoded_key).first()
-
-    if not decoded_url:
-        abort(404)
+    decoded_url = Url.query.filter_by(id=decoded_key).first_or_404()
 
     user_agent = request.user_agent
 
@@ -69,30 +61,38 @@ def decode(encoded):
     return redirect(decoded_url.real_url)
 
 
-def url_register():
+def url_register(user):
     """
     Shorten a new URL
     """
-    form = request.form
-    if 'url' not in form or 'owner' not in form:
-        abort(501)
+    values = request.values
+    url = values.get('target')
+    validation_errors = []
 
-    reg_url = form['url']
-    reg_owner = form['owner']
-    #TODO: validate well formed reg_url
-    if not reg_url or len(reg_url) <= 1 or not reg_owner\
-             or len(reg_owner) <= 1:
+    if not validate_url(url):
         #Invalid form data, redirect to error message
-        abort(501)
+        validation_errors.append({'resource': "url",
+                                  'field': "target",
+                                  'code': "invalid"})
+    if not validate_user(user):
+        abort(404)
 
-    already_exists = Url.query.filter_by(real_url=reg_url,
-                                         owner_id=reg_owner).first()
+    if validation_errors:
+        raise ValidationFailed(validation_errors)
+
+    already_exists = Url.query.filter_by(real_url=url,
+                                         owner_id=user).first()
 
     if already_exists:
-        return "Already exists: %s%s" % (request.url_root,
-                 already_exists.encoded_key)
+        return jsonify({'url': "%s/%s" % (request.base_url,
+                                         already_exists.encoded_key),
+                        'target': url,
+                        'short': already_exists.encoded_key,
+                        'user': user,
+                        'creation_date': already_exists.\
+                                         date_publish.isoformat(' ')})
 
-    new_url = Url(real_url=reg_url, owner_id=reg_owner)
+    new_url = Url(real_url=url, owner_id=user)
     db.session.add(new_url)
     # We need to first commit to DB so it's unique integer id is assigned
     # and no race conditions can take place, backend DB atomic operations
@@ -101,61 +101,51 @@ def url_register():
     # Only then we can ask for the encoded_key, and it will be calculated
     encoded_key = new_url.encoded_key
     db.session.commit()
-    return "%s%s" % (request.url_root, encoded_key)
+    return jsonify({'url': "%s/%s" % (request.base_url, encoded_key),
+                    'target': url,
+                    'short': encoded_key,
+                    'user': user,
+                    'creation_date': new_url.date_publish.isoformat(' ')})
 
 
-def reports():
+def reports(user, short):
     """
     Get reports for shorten URL token
     """
-    form = request.form
-    mandatory_params = ['short_token', 'owner']
-
-    if False in map(lambda x: x in form, mandatory_params):
-        abort(501)
-
-    short = form['short_token']
-    owner = form['owner']
+    values = request.values
     page = 1
 
-    if 'page' in form and int(form['page']) >= 0:
-        page = form['page']
-
-    if not short or len(short) < 6 or not owner\
-             or len(owner) <= 1:
-        #Invalid form data, redirect to error message
-        abort(501)
+    if 'page' in values and int(values.get('page')) >= 0:
+        page = int(values.get('page'))
 
     try:
         decoded_key = shortener.decode_url(short)
     except ValueError:
         abort(404)
 
-    decoded_url = Url.query.filter_by(id=decoded_key).first()
-
-    if not decoded_url:
-        abort(404)
+    decoded_url = Url.query.filter_by(id=decoded_key).first_or_404()
 
     per_page = app.config['RESULTS_PER_PAGE']
     paginated = Expansion.query.join(Url).filter_by(id=decoded_key)\
                                         .paginate(page=page, per_page=per_page)
 
     result_output = app.config['RESULTS_OUTPUT']
-    if result_output != 'json' or result_output != 'protobuf':
+    if result_output != 'json' and result_output != 'protobuf':
         result_output = 'json'
 
     if result_output == 'json':
-        results = {'short_url': short, 'owner': owner,
+        results = {'short': short, 'user': user,
+                   'url': "%s%s" % (request.url_root, short),
+                   'target': decoded_url.real_url,
+                   'creation_date': decoded_url.date_publish.isoformat(' '),
                    'page_number': paginated.page,
                    'results_per_page': paginated.per_page,
                    'page_count': paginated.pages,
                    'expansions': []}
 
         for result in paginated.items:
-            detect_unix_ts = calendar.timegm(
-                                         result.detection_date.utctimetuple())
-            one_result = {'url_id': result.url_id,
-                          'detection_date': detect_unix_ts,
+            one_result = {'detection_date': result.detection_date.\
+                                                                isoformat(' '),
                           'ua_string': result.ua_string,
                           'ua_name': result.ua_name,
                           'ua_family': result.ua_family,
@@ -168,8 +158,9 @@ def reports():
 
     if result_output == 'protobuf':
         results = reports_pb2.ExpansionsResponse()
-        results.short_token = short
-        results.owner = owner
+        results.short = short
+        results.user = user
+        results.target = decoded_url.real_url
         results.page_number = paginated.page
         results.results_per_page = paginated.per_page
         results.page_count = paginated.pages
@@ -177,10 +168,8 @@ def reports():
 
         for result in paginated.items:
             one_result = results.expansion.add()
-            one_result.url_id = result.url_id
-            detect_unix_ts = calendar.timegm(
-                                         result.detection_date.utctimetuple())
-            one_result.detection_date = detect_unix_ts
+            one_result.detection_date = result.detection_date.\
+                                                              isoformat(' ')
             one_result.ua_string = result.ua_string.encode(encoding)
             one_result.ua_name = result.ua_name.encode(encoding)
             one_result.ua_family = result.ua_family.encode(encoding)
@@ -195,43 +184,31 @@ def reports():
     abort(500)
 
 
-def generateqr():
+def generate_qr(user, short):
     """
     Return QR for given URL
     """
     values = request.values
     validation_errors = []
 
-    url = values.get('url')
-    if url:
-        url = url.lower()
-        if not validate_url(url):
-            validation_errors.append({'resource': "url",
-                                      'field': "url",
-                                      'code': "invalid"})
-    else:
-        validation_errors.append({'resource': "url",
-                                  'field': "url",
-                                  'code': "missing_field"})
+    try:
+        decoded_id = shortener.decode_url(short)
+    except ValueError:
+        abort(404)
 
-    owner = values.get('owner')
-    if owner:
-        owner = owner.lower()
-        if not validate_owner(owner):
-            validation_errors.append({'resource': "url",
-                                     'field': "owner",
-                                     'code': "invalid"})
-    else:
-        validation_errors.append({'resource': "url",
-                                  'field': "owner",
-                                  'code': "missing_field"})
+    if not validate_owner(user):
+        validation_errors.append({'resource': "user",
+                                  'field': "id",
+                                  'code': "invalid"})
+
+    Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
 
     def get_optional(name, default, validator):
         value = values.get(name)
         if value == None:
             return default
         if callable(validator) and not validator(value):
-            validation_errors.append({'resource': "url",
+            validation_errors.append({'resource': "qr",
                                       'field': name,
                                       'code': "invalid"})
             return default
@@ -251,26 +228,10 @@ def generateqr():
     if validation_errors:
         raise ValidationFailed(validation_errors)
 
-    already_exists = Url.query.filter_by(real_url=url,
-                                         owner_id=owner).first()
-    encoded_key = None
-    if already_exists:
-        encoded_key = already_exists.encoded_key
-    else:
-        new_url = Url(real_url=url, owner_id=owner)
-        db.session.add(new_url)
-        # We need to first commit to DB so it's unique integer id is assigned
-        # and no race conditions can take place, backend DB atomic operations
-        # must assure that
-        db.session.commit()
-        # Only then we can ask for the encoded_key, and it will be calculated
-        encoded_key = new_url.encoded_key
-        db.session.commit()
-
     pdf_filelike = None
     try:
         pdf_filelike = generate_qr_file("%s%s" % (request.url_root,
-                                        encoded_key),
+                                        short),
                                         app=application,
                                         app_size=appsize,
                                         style=style,
@@ -313,3 +274,19 @@ def generateqr():
             mimetype = u'image/jpeg'
 
         return send_file(pdf_filelike, mimetype=mimetype)
+
+
+def get_url(user, short):
+    """Returns URL details for given short token"""
+    try:
+        decoded_id = shortener.decode_url(short)
+    except ValueError:
+        abort(404)
+
+    url = Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
+
+    return jsonify({'target': url.real_url,
+                    'short': short,
+                    'user': user,
+                    'creation_date': url.date_publish.isoformat(' '),
+                    'url': request.base_url})
