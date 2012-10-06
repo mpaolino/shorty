@@ -26,6 +26,12 @@ def validate_url(url):
     return False
 
 
+def validate_short(short):
+    if re.match("^[a-zA-Z0-9]+", short):
+        return True
+    return False
+
+
 def validate_owner(owner):
     if isinstance(owner, (str, unicode)) and len(owner) >= 1:
         return True

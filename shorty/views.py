@@ -9,12 +9,11 @@ from shorty.validation import (ValidationFailed, validate_url,
                                validate_owner, validate_color,
                                validate_application, validate_application_size,
                                validate_style, validate_qr_format,
-                               validate_user)
+                               validate_user, validate_short)
 from qrlib import (generate_qr_file, InnerEyeStyleMissing,
                    OuterEyeStyleMissing, StyleMissing)
 
 from flask import (abort, redirect, request, send_file, make_response, jsonify)
-import re
 
 
 @app.errorhandler(ValidationFailed)
@@ -32,8 +31,7 @@ def decode(encoded):
     """
     Decode URL and redirect
     """
-    if not encoded or len(encoded) <= 1 or not \
-            re.match("^[a-zA-Z0-9]+", encoded):
+    if not validate_short(encoded):
         abort(404)
 
     try:
