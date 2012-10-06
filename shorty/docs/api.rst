@@ -160,7 +160,8 @@ Expand URL
 
 Parameters
 ----------
-encoded - short URL token to decode an redirect to URL target
+encoded
+    *string* short URL token to decode an redirect to URL target
 
 Response
 --------
@@ -175,11 +176,13 @@ URL register
 
 Parameters
 ----------
-user - Username, owner of URL
+user
+    *string* Username, owner of URL
 
 Input
 -----
-target - long URL to shorten
+target
+    *string* Long URL to shorten
 
 Response
 --------
@@ -203,7 +206,8 @@ Get all URLs for user
 
 Parameters
 ----------
-page - integer specifing page number of paginated results
+page
+    *integer* Page number of paginated results
 
 
 Response
@@ -262,7 +266,12 @@ URL Expansion reports
 
 Parameters/Input
 ----------------
-page - positive integer denoting page of paginated results
+page
+    *integer* Page of paginated results
+from
+    *iso8601 date* Only show expansions that happened before this date, inclusive.
+to
+    *iso8601 date*. Only show expansions that happened until date, inclusive.
 
 Response
 --------

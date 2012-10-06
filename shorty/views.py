@@ -9,11 +9,12 @@ from shorty.validation import (ValidationFailed, validate_url,
                                validate_owner, validate_color,
                                validate_application, validate_application_size,
                                validate_style, validate_qr_format,
-                               validate_user, validate_short)
+                               validate_user, validate_short, validate_date)
 from qrlib import (generate_qr_file, InnerEyeStyleMissing,
                    OuterEyeStyleMissing, StyleMissing)
 
 from flask import (abort, redirect, request, send_file, make_response, jsonify)
+import iso8601
 
 
 @app.errorhandler(ValidationFailed)
@@ -112,6 +113,7 @@ def reports(user, short):
     """
     values = request.values
     page = 1
+    validation_errors = []
 
     if 'page' in values and int(values.get('page')) >= 0:
         page = int(values.get('page'))
@@ -123,8 +125,53 @@ def reports(user, short):
 
     decoded_url = Url.query.filter_by(id=decoded_key).first_or_404()
 
+    def get_optional(name, default, validator):
+        value = values.get(name)
+        if value == None:
+            return default
+        if callable(validator) and not validator(value):
+            validation_errors.append({'resource': "report",
+                                      'field': name,
+                                      'code': "invalid"})
+            return default
+        return value
+
+    from_string = get_optional('from', None, validate_date)
+    to_string = get_optional('to', None, validate_date)
+
+    if (from_string and to_string) and (to_string < from_string):
+        validation_errors.append({'resource': "report",
+                                  'field': 'from',
+                                  'code': "invalid",
+                                  'details': 'to date prior to from date'})
+        raise ValidationFailed(validation_errors)
+
     per_page = app.config['RESULTS_PER_PAGE']
-    paginated = Expansion.query.join(Url).filter_by(id=decoded_key)\
+    # Let's see what are the query conditionals
+    if from_string and not to_string:
+        from_date = iso8601.parse_date(from_string)
+        paginated = Expansion.query.join(Url)\
+                    .filter((Url.id == decoded_key) &\
+                            (Expansion.detection_date >= from_date))\
+                    .paginate(page=page, per_page=per_page)
+
+    elif not from_string and to_string:
+        to_date = iso8601.parse_date(to_string)
+        paginated = Expansion.query.join(Url)\
+                    .filter((Url.id == decoded_key) &\
+                            (Expansion.detection_date <= to_date))\
+                    .paginate(page=page, per_page=per_page)
+
+    elif from_string and to_string:
+        from_date = iso8601.parse_date(from_string)
+        to_date = iso8601.parse_date(to_string)
+        paginated = Expansion.query.join(Url)\
+                    .filter((Url.id == decoded_key) &\
+                            (Expansion.detection_date <= to_date) &\
+                            (Expansion.detection_date >= from_date))\
+                    .paginate(page=page, per_page=per_page)
+    else:
+        paginated = Expansion.query.join(Url).filter_by(id=decoded_key)\
                                         .paginate(page=page, per_page=per_page)
 
     result_output = app.config['RESULTS_OUTPUT']
