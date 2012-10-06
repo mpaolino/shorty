@@ -323,3 +323,8 @@ def get_all_urls(user):
                           'url': "%s/%s" % (request.base_url, url.encoded_key)}
             results['urls'].append(one_result)
         return jsonify(results)
+
+    if result_output == 'protobuf':
+        return 'Sorry still no protobuf serialization for this one', 500
+
+    abort(500)
