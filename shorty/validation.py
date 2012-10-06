@@ -27,7 +27,7 @@ def validate_url(url):
 
 
 def validate_short(short):
-    if re.match("^[a-zA-Z0-9]+", short):
+    if isinstance(short, (str, unicode)) and re.match("^[a-zA-Z0-9]+", short):
         return True
     return False
 
