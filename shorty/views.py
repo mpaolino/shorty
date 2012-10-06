@@ -288,3 +288,38 @@ def get_url(user, short):
                     'user': user,
                     'creation_date': url.date_publish.isoformat(' '),
                     'url': request.base_url})
+
+
+def get_all_urls(user):
+    """Returns all URLs defined for user"""
+
+    Url.query.filter_by(owner_id=user).first_or_404()
+
+    values = request.values
+    page = 1
+
+    if 'page' in values and int(values.get('page')) >= 0:
+        page = int(values.get('page'))
+
+    per_page = app.config['RESULTS_PER_PAGE']
+    paginated = Url.query.filter_by(owner_id=user).paginate(page=page,
+                                                            per_page=per_page)
+
+    result_output = app.config['RESULTS_OUTPUT']
+    if result_output != 'json' and result_output != 'protobuf':
+        result_output = 'json'
+
+    if result_output == 'json':
+        results = {'user': user,
+                   'page_number': paginated.page,
+                   'results_per_page': paginated.per_page,
+                   'page_count': paginated.pages,
+                   'urls': []}
+
+        for url in paginated.items:
+            one_result = {'target': url.real_url,
+                          'short': url.encoded_key,
+                          'creation_date': url.date_publish.isoformat(' '),
+                          'url': "%s/%s" % (request.base_url, url.encoded_key)}
+            results['urls'].append(one_result)
+        return jsonify(results)

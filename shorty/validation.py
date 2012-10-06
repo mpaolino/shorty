@@ -21,7 +21,7 @@ def validate_user(user):
 
 def validate_url(url):
     #TODO: proper URL validation
-    if isinstance(url, (str, unicode)) and len(url) > 4:
+    if isinstance(url, (str, unicode)) and len(url) > 5:
         return True
     return False
 
