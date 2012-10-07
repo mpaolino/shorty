@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
+# *- coding: utf-8 -*-
 from shorty import app
 from shorty.database import db
 from shorty.libs import shortener
-from shorty.libs.protobuffer import reports_pb2
 from shorty.libs.uasparser import UASparser
 from shorty.models import Url, Expansion
-from shorty.validation import (ValidationFailed, validate_url,
-                               validate_owner, validate_color,
-                               validate_application, validate_application_size,
+from shorty.validation import (ValidationFailed, validate_url_ceibal,
+                               validate_color, validate_application,
                                validate_style, validate_qr_format,
-                               validate_user, validate_short, validate_date)
+                               validate_short, validate_date,
+                               validate_application_size)
+
 from qrlib import (generate_qr_file, InnerEyeStyleMissing,
                    OuterEyeStyleMissing, StyleMissing)
 
@@ -60,59 +60,11 @@ def decode(encoded):
     return redirect(decoded_url.real_url)
 
 
-def url_register(user):
-    """
-    Shorten a new URL
-    """
-    values = request.values
-    url = values.get('target')
-    validation_errors = []
-
-    if not validate_url(url):
-        #Invalid form data, redirect to error message
-        validation_errors.append({'resource': "url",
-                                  'field': "target",
-                                  'code': "invalid"})
-    if not validate_user(user):
-        abort(404)
-
-    if validation_errors:
-        raise ValidationFailed(validation_errors)
-
-    already_exists = Url.query.filter_by(real_url=url,
-                                         owner_id=user).first()
-
-    if already_exists:
-        return jsonify({'url': "%s/%s" % (request.base_url,
-                                         already_exists.encoded_key),
-                        'target': url,
-                        'short': already_exists.encoded_key,
-                        'user': user,
-                        'creation_date': already_exists.\
-                                         date_publish.isoformat(' ')})
-
-    new_url = Url(real_url=url, owner_id=user)
-    db.session.add(new_url)
-    # We need to first commit to DB so it's unique integer id is assigned
-    # and no race conditions can take place, backend DB atomic operations
-    # must assure that
-    db.session.commit()
-    # Only then we can ask for the encoded_key, and it will be calculated
-    encoded_key = new_url.encoded_key
-    db.session.commit()
-    response = jsonify({'url': "%s/%s" % (request.base_url, encoded_key),
-                        'target': url,
-                        'short': encoded_key,
-                        'user': user,
-                        'creation_date': new_url.date_publish.isoformat(' ')})
-    response.status_code = 201
-    return response
-
-
-def reports(user, short):
+def reports(short):
     """
     Get reports for shorten URL token
     """
+    user = 'ceibal'
     values = request.values
     page = 1
     validation_errors = []
@@ -176,86 +128,116 @@ def reports(user, short):
         paginated = Expansion.query.join(Url).filter_by(id=decoded_key)\
                                         .paginate(page=page, per_page=per_page)
 
-    result_output = app.config['RESULTS_OUTPUT']
-    if result_output != 'json' and result_output != 'protobuf':
-        result_output = 'json'
+    results = {'short': short, 'user': user,
+               'url': "%s%s" % (request.url_root, short),
+               'target': decoded_url.real_url,
+               'creation_date': decoded_url.date_publish.isoformat(' '),
+               'page_number': paginated.page,
+               'results_per_page': paginated.per_page,
+               'page_count': paginated.pages,
+               'expansions': []}
 
-    if result_output == 'json':
-        results = {'short': short, 'user': user,
-                   'url': "%s%s" % (request.url_root, short),
-                   'target': decoded_url.real_url,
-                   'creation_date': decoded_url.date_publish.isoformat(' '),
-                   'page_number': paginated.page,
-                   'results_per_page': paginated.per_page,
-                   'page_count': paginated.pages,
-                   'expansions': []}
+    for result in paginated.items:
+        one_result = {'detection_date': result.detection_date.\
+                                                            isoformat(' '),
+                      'ua_string': result.ua_string,
+                      'ua_name': result.ua_name,
+                      'ua_family': result.ua_family,
+                      'ua_company': result.ua_company,
+                      'ua_type': result.ua_type,
+                      'os_family': result.os_family}
 
-        for result in paginated.items:
-            one_result = {'detection_date': result.detection_date.\
-                                                                isoformat(' '),
-                          'ua_string': result.ua_string,
-                          'ua_name': result.ua_name,
-                          'ua_family': result.ua_family,
-                          'ua_company': result.ua_company,
-                          'ua_type': result.ua_type,
-                          'os_family': result.os_family}
-
-            results['expansions'].append(one_result)
-        return jsonify(results)
-
-    if result_output == 'protobuf':
-        results = reports_pb2.ExpansionsResponse()
-        results.short = short
-        results.user = user
-        results.target = decoded_url.real_url
-        results.page_number = paginated.page
-        results.results_per_page = paginated.per_page
-        results.page_count = paginated.pages
-        encoding = app.config['DEFAULT_CHARSET']
-
-        for result in paginated.items:
-            one_result = results.expansion.add()
-            one_result.detection_date = result.detection_date.\
-                                                              isoformat(' ')
-            one_result.ua_string = result.ua_string.encode(encoding)
-            one_result.ua_name = result.ua_name.encode(encoding)
-            one_result.ua_family = result.ua_family.encode(encoding)
-            one_result.ua_company = result.ua_company.encode(encoding)
-            one_result.ua_type = result.ua_type.encode(encoding)
-            one_result.os_family = result.os_family.encode(encoding)
-
-        response = make_response(results.SerializeToString())
-        response.headers["Content-type"] = "application/x-protobuffer"
-        return response
-
-    abort(500)
+        results['expansions'].append(one_result)
+    return jsonify(results)
 
 
-def generate_qr(user, short):
-    """
-    Return QR for given URL
-    """
-    values = request.values
-    validation_errors = []
+def get_url(short):
+    """Returns URL details for given short token"""
+
+    user = 'ceibal'
 
     try:
         decoded_id = shortener.decode_url(short)
     except ValueError:
         abort(404)
 
-    if not validate_owner(user):
-        validation_errors.append({'resource': "user",
-                                  'field': "id",
-                                  'code': "invalid"})
+    url = Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
 
-    Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
+    return jsonify({'target': url.real_url,
+                    'short': short,
+                    'user': user,
+                    'creation_date': url.date_publish.isoformat(' '),
+                    'url': request.base_url})
+
+
+def delete_url(short):
+    """Deletes URL for given user and short token"""
+
+    user = 'ceibal'
+
+    try:
+        decoded_id = shortener.decode_url(short)
+    except ValueError:
+        abort(404)
+    url = Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
+    db.session.delete(url)
+    db.session.commit()
+    response = make_response()
+    response.status_code = 204
+    return response
+
+
+def get_all_urls():
+    """Returns all URLs defined for user"""
+
+    user = 'ceibal'
+
+    Url.query.filter_by(owner_id=user).first_or_404()
+
+    values = request.values
+    page = 1
+
+    if 'page' in values and int(values.get('page')) >= 0:
+        page = int(values.get('page'))
+
+    per_page = app.config['RESULTS_PER_PAGE']
+    paginated = Url.query.filter_by(owner_id=user).paginate(page=page,
+                                                            per_page=per_page)
+
+    results = {'user': user,
+               'page_number': paginated.page,
+               'results_per_page': paginated.per_page,
+               'page_count': paginated.pages,
+               'urls': []}
+
+    for url in paginated.items:
+        one_result = {'target': url.real_url,
+                      'short': url.encoded_key,
+                      'creation_date': url.date_publish.isoformat(' '),
+                      'url': "%s/%s" % (request.base_url, url.encoded_key)}
+        results['urls'].append(one_result)
+    return jsonify(results)
+
+
+def generate_qr_ceibal():
+    """
+    Return QR for given URL
+    """
+    values = request.values
+    validation_errors = []
+
+    url = request.referrer
+    if not url or not validate_url_ceibal(url):
+        abort(403)
+
+    owner = 'ceibal'
 
     def get_optional(name, default, validator):
         value = values.get(name)
         if value == None:
             return default
         if callable(validator) and not validator(value):
-            validation_errors.append({'resource': "qr",
+            validation_errors.append({'resource': "url",
                                       'field': name,
                                       'code': "invalid"})
             return default
@@ -263,22 +245,40 @@ def generate_qr(user, short):
 
     application = get_optional('application', 'interior', validate_application)
     appsize = get_optional('appsize', 'small', validate_application_size)
-    style = get_optional('style', 'default', validate_style)
-    style_color = get_optional('stylecolor', '#000000', validate_color)
-    inner_eye_style = get_optional('innereyestyle', 'default', validate_style)
-    outer_eye_style = get_optional('outereyestyle', 'default', validate_style)
-    inner_eye_color = get_optional('innereyecolor', '#000000', validate_color)
-    outer_eye_color = get_optional('outereyecolor', '#000000', validate_color)
+    style = get_optional('style', 'heavyround', validate_style)
+    style_color = get_optional('stylecolor', '#195805', validate_color)
+    inner_eye_style = get_optional('innereyestyle', 'heavyround',
+                                   validate_style)
+    outer_eye_style = get_optional('outereyestyle', 'heavyround',
+                                   validate_style)
+    inner_eye_color = get_optional('innereyecolor', '#C21217', validate_color)
+    outer_eye_color = get_optional('outereyecolor', '#22C13E', validate_color)
     bg_color = get_optional('bgcolor', '#FFFFFF', validate_color)
     qr_format = get_optional('qrformat', 'PDF', validate_qr_format)
 
     if validation_errors:
         raise ValidationFailed(validation_errors)
 
+    already_exists = Url.query.filter_by(real_url=url,
+                                         owner_id=owner).first()
+    encoded_key = None
+    if already_exists:
+        encoded_key = already_exists.encoded_key
+    else:
+        new_url = Url(real_url=url, owner_id=owner)
+        db.session.add(new_url)
+        # We need to first commit to DB so it's unique integer id is assigned
+        # and no race conditions can take place, backend DB atomic operations
+        # must assure that
+        db.session.commit()
+        # Only then we can ask for the encoded_key, and it will be calculated
+        encoded_key = new_url.encoded_key
+        db.session.commit()
+
     pdf_filelike = None
     try:
         pdf_filelike = generate_qr_file("%s%s" % (request.url_root,
-                                        short),
+                                        encoded_key),
                                         app=application,
                                         app_size=appsize,
                                         style=style,
@@ -321,73 +321,3 @@ def generate_qr(user, short):
             mimetype = u'image/jpeg'
 
         return send_file(pdf_filelike, mimetype=mimetype)
-
-
-def get_url(user, short):
-    """Returns URL details for given short token"""
-    try:
-        decoded_id = shortener.decode_url(short)
-    except ValueError:
-        abort(404)
-
-    url = Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
-
-    return jsonify({'target': url.real_url,
-                    'short': short,
-                    'user': user,
-                    'creation_date': url.date_publish.isoformat(' '),
-                    'url': request.base_url})
-
-
-def delete_url(user, short):
-    """Deletes URL for given user and short token"""
-    try:
-        decoded_id = shortener.decode_url(short)
-    except ValueError:
-        abort(404)
-    url = Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
-    db.session.delete(url)
-    db.session.commit()
-    response = make_response()
-    response.status_code = 204
-    return response
-
-
-def get_all_urls(user):
-    """Returns all URLs defined for user"""
-
-    Url.query.filter_by(owner_id=user).first_or_404()
-
-    values = request.values
-    page = 1
-
-    if 'page' in values and int(values.get('page')) >= 0:
-        page = int(values.get('page'))
-
-    per_page = app.config['RESULTS_PER_PAGE']
-    paginated = Url.query.filter_by(owner_id=user).paginate(page=page,
-                                                            per_page=per_page)
-
-    result_output = app.config['RESULTS_OUTPUT']
-    if result_output != 'json' and result_output != 'protobuf':
-        result_output = 'json'
-
-    if result_output == 'json':
-        results = {'user': user,
-                   'page_number': paginated.page,
-                   'results_per_page': paginated.per_page,
-                   'page_count': paginated.pages,
-                   'urls': []}
-
-        for url in paginated.items:
-            one_result = {'target': url.real_url,
-                          'short': url.encoded_key,
-                          'creation_date': url.date_publish.isoformat(' '),
-                          'url': "%s/%s" % (request.base_url, url.encoded_key)}
-            results['urls'].append(one_result)
-        return jsonify(results)
-
-    if result_output == 'protobuf':
-        return ('Sorry still no protobuf serialization for this one', 500)
-
-    abort(500)

@@ -11,5 +11,4 @@ SECRET_KEY = ''
 SERVER_EMAIL = 'root@localhost'
 
 RESULTS_PER_PAGE = 500
-RESULTS_OUTPUT = 'json'
-#RESULTS_OUTPUT = 'protobuf'
+ALLOWED_REFERRERS_REGEXP = r'^http[s]*://[www\.]*ceibal.edu.uy'

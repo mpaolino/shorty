@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from shorty.settings.local import ALLOWED_REFERRERS_REGEXP
 import re
 import iso8601
 from iso8601 import ParseError
@@ -29,21 +30,15 @@ def validate_date(date):
         return False
 
 
-def validate_url(url):
-    #TODO: proper URL validation
-    if isinstance(url, (str, unicode)) and len(url) > 5:
+def validate_url_ceibal(url):
+    if isinstance(url, (str, unicode)) and \
+            re.match(ALLOWED_REFERRERS_REGEXP, url):
         return True
     return False
 
 
 def validate_short(short):
     if isinstance(short, (str, unicode)) and re.match("^[a-zA-Z0-9]+", short):
-        return True
-    return False
-
-
-def validate_owner(owner):
-    if isinstance(owner, (str, unicode)) and len(owner) >= 1:
         return True
     return False
 
