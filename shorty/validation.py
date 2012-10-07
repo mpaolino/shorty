@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import iso8601
+from iso8601 import ParseError
 
 
 class ValidationFailed(Exception):
@@ -19,12 +20,14 @@ def validate_user(user):
         return True
     return False
 
+
 def validate_date(date):
     try:
         iso8601.parse_date(date)
         return True
     except ParseError:
         return False
+
 
 def validate_url(url):
     #TODO: proper URL validation
