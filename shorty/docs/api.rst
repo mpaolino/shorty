@@ -11,9 +11,7 @@ as in filtering data must be sent as GET arguments. This will be
 shown as "Parameters" in the documentation.
 
 
-All timestamps are returned in ISO 8601 format:
-
-::
+All timestamps are returned in ISO 8601 format::
 
     YYYY-MM-DD HH:MM:SSZ
 
@@ -34,9 +32,7 @@ Successful 2xx
 The request has succeeded. The information returned with the response is
 dependent on the method used in the request, for example:
 
-GET an entity corresponding to the requested resource is sent in the response
-
-::
+GET an entity corresponding to the requested resource is sent in the response::
 
 	HTTP/1.1 200 OK
 
@@ -48,9 +44,7 @@ GET an entity corresponding to the requested resource is sent in the response
 -----------
 201 Created
 -----------
-The request has been fulfilled and resulted in a new resource being created.
-
-::
+The request has been fulfilled and resulted in a new resource being created::
 
 	HTTP/1.1 201 Created
 
@@ -64,9 +58,7 @@ request bodies:
 -------------
 404 Not Found
 -------------
-Sending invalid Request-URI will result in a 404 Not Found.
-
-::
+Sending invalid Request-URI will result in a 404 Not Found::
 
 	HTTP/1.1 404 Not Found
 
@@ -77,9 +69,7 @@ Sending invalid Request-URI will result in a 404 Not Found.
 ----------------------
 Sending invalid method will result in a 405 Method Not Allowed. 
 The response must include an Allow header containing a list of valid
-methods for the requested resource.
-
-::
+methods for the requested resource::
 
    HTTP/1.1 405 Method Not Allowed
    Content-Lenght: 41 
@@ -90,9 +80,7 @@ methods for the requested resource.
 ------------------------
 422 Unprocessable Entity
 ------------------------
-Sending invalid files will result in a 422 Unprocessable Entity response.
-
-::
+Sending data will result in a 422 Unprocessable Entity response::
 
    HTTP/1.1 422 Unprocessable Entity
    Content-Length: 149
@@ -169,8 +157,8 @@ encoded
 --------
 Response
 --------
-Status: 302 Found
-Location: http://longurltoshorten.com/path/to/some/resource
+| Status: 302 Found
+| Location: http://longurltoshorten.com/path/to/some/resource
 
 
 URL register
@@ -325,12 +313,14 @@ Response
 Get QR for short URL
 --------------------
 
-[GET|POST] /api/:user>/url/:short/qr
+[GET|POST] /api/:user/url/:short/qr
 
 ----------------
 Parameters/Input
 ----------------
-Note::
+Note
+
+::
       All the parameters can be encoded en the request URL or in the POST form.
       For a more detailed information on each parameter please refer to the qrlib
       documentation.
