@@ -5,8 +5,7 @@ from shorty.libs import shortener
 from shorty.libs.uasparser import UASparser
 from shorty.models import Url, Expansion
 from shorty.validation import (ValidationFailed, validate_url_ceibal,
-                               validate_color, validate_application,
-                               validate_style, validate_qr_format,
+                               validate_application, validate_qr_format,
                                validate_short, validate_date,
                                validate_application_size)
 
@@ -64,7 +63,6 @@ def reports(short):
     """
     Get reports for shorten URL token
     """
-    user = 'ceibal'
     values = request.values
     page = 1
     validation_errors = []
@@ -128,7 +126,7 @@ def reports(short):
         paginated = Expansion.query.join(Url).filter_by(id=decoded_key)\
                                         .paginate(page=page, per_page=per_page)
 
-    results = {'short': short, 'user': user,
+    results = {'short': short,
                'url': "%s%s" % (request.url_root, short),
                'target': decoded_url.real_url,
                'creation_date': decoded_url.date_publish.isoformat(' '),
@@ -165,7 +163,6 @@ def get_url(short):
 
     return jsonify({'target': url.real_url,
                     'short': short,
-                    'user': user,
                     'creation_date': url.date_publish.isoformat(' '),
                     'url': request.base_url})
 
@@ -204,8 +201,7 @@ def get_all_urls():
     paginated = Url.query.filter_by(owner_id=user).paginate(page=page,
                                                             per_page=per_page)
 
-    results = {'user': user,
-               'page_number': paginated.page,
+    results = {'page_number': paginated.page,
                'results_per_page': paginated.per_page,
                'page_count': paginated.pages,
                'urls': []}
@@ -221,7 +217,7 @@ def get_all_urls():
 
 def generate_qr_ceibal():
     """
-    Return QR for given URL
+    Shorten referer and return QR
     """
     values = request.values
     validation_errors = []
@@ -237,7 +233,7 @@ def generate_qr_ceibal():
         if value == None:
             return default
         if callable(validator) and not validator(value):
-            validation_errors.append({'resource': "url",
+            validation_errors.append({'resource': "qr",
                                       'field': name,
                                       'code': "invalid"})
             return default
@@ -245,16 +241,13 @@ def generate_qr_ceibal():
 
     application = get_optional('application', 'interior', validate_application)
     appsize = get_optional('appsize', 'small', validate_application_size)
-    style = get_optional('style', 'heavyround', validate_style)
-    style_color = get_optional('stylecolor', '#195805', validate_color)
-    inner_eye_style = get_optional('innereyestyle', 'heavyround',
-                                   validate_style)
-    outer_eye_style = get_optional('outereyestyle', 'heavyround',
-                                   validate_style)
-    inner_eye_color = get_optional('innereyecolor', '#C21217', validate_color)
-    outer_eye_color = get_optional('outereyecolor', '#22C13E', validate_color)
-    bg_color = get_optional('bgcolor', '#FFFFFF', validate_color)
     qr_format = get_optional('qrformat', 'PDF', validate_qr_format)
+    style = 'heavyround'
+    style_color = '#195805'
+    inner_eye_style = 'heavyround'
+    outer_eye_style = 'heavyround'
+    inner_eye_color = '#C21217'
+    outer_eye_color = '#22C13E'
 
     if validation_errors:
         raise ValidationFailed(validation_errors)
@@ -287,7 +280,6 @@ def generate_qr_ceibal():
                                         inner_eye_color=inner_eye_color,
                                         outer_eye_style=outer_eye_style,
                                         outer_eye_color=outer_eye_color,
-                                        bg_color=bg_color,
                                         qr_format=qr_format)
 
         pdf_filelike.seek(0)

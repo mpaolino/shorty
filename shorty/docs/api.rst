@@ -171,43 +171,10 @@ Response
 | Location: http://longurltoshorten.com/path/to/some/resource
 
 
-URL register
-------------
-
-[POST] - /api/:user/url
-
-----------
-Parameters
-----------
-user
-    *string* Username, owner of URL
-
------
-Input
------
-target
-    *string* Long URL to shorten
-
---------
-Response
---------
-Status: 200 OK
-
-::
-
-    {
-        "url": "http://127.0.0.1:5000/api/ideal/url/2Bkmh3", 
-        "user": "ideal", 
-        "short": "2Bkmh3", 
-        "target": "http://longurltoshorten.com/path/to/some/resource", 
-        "creation_date": "2012-10-06 18:26:40.900545"
-    }
-
-
 URL delete
 ----------
 
-[DELETE] - /api/:user/url/:short
+[DELETE] - /api/url/:short
 
 Deletes URL for given short key. Will also delete all its associated 
 expansions.
@@ -218,9 +185,9 @@ Response
 Status: 204 NO CONTENT
 
 
-Get all URLs for user
----------------------
-[GET] /api/:user/url
+Get all URLs
+------------
+[GET] /api/url
 
 ----------
 Parameters
@@ -239,16 +206,15 @@ Status: 200 OK
       "page_number": 1, 
       "page_count": 1, 
       "results_per_page": 500, 
-      "user": "ideal", 
       "urls": [
         {
-          "url": "http://127.0.0.1:5000/api/ideal/url/dc8tvV", 
+          "url": "http://127.0.0.1:5000/api/url/dc8tvV", 
           "short": "dc8tvV", 
           "target": "http://cosa.ideal.com.uy", 
           "creation_date": "2012-10-06 14:19:25.165651"
         }, 
         {
-          "url": "http://127.0.0.1:5000/api/ideal/url/2Bkmh3", 
+          "url": "http://127.0.0.1:5000/api/url/2Bkmh3", 
           "short": "2Bkmh3", 
           "target": "http://longurltoshorten.com/path/to/some/resource", 
           "creation_date": "2012-10-06 18:26:40.900545"
@@ -260,7 +226,7 @@ Status: 200 OK
 Get URL details
 ---------------
 
-[GET] /api/:user/url/:short
+[GET] /api/url/:short
 
 --------
 Response
@@ -270,8 +236,7 @@ Status: 200 OK
 ::
 
     {
-      "url": "http://127.0.0.1:5000/api/ideal/url/2Bkmh3", 
-      "user": "ideal", 
+      "url": "http://127.0.0.1:5000/api/url/2Bkmh3", 
       "short": "2Bkmh3", 
       "target": "http://longurltoshorten.com/path/to/some/resource", 
       "creation_date": "2012-10-06 18:26:40.900545"
@@ -282,7 +247,7 @@ Status: 200 OK
 URL Expansion reports
 ---------------------
 
-[GET|POST] /api/:user>/url/:short>/expansions
+[GET|POST] /api/url/:short/expansions
 
 ----------------
 Parameters/Input
@@ -307,7 +272,6 @@ Response
       "page_count": 1,
       "creation_date": "2012-10-06 18:26:40.900545", 
       "page_number": 1, 
-      "user": "ideal", 
       "results_per_page": 500
       "expansions": [
         {
@@ -333,10 +297,10 @@ Response
 
 
 
-Get QR for short URL
---------------------
+Get QR and shorten referer 
+--------------------------
 
-[GET|POST] /api/:user/url/:short/qr
+[GET|POST] /api/qr
 
 ----------------
 Parameters/Input
@@ -351,20 +315,6 @@ application
     Application intended for generated QR, 'interior' or 'exterior'. Defaults to 'interior'.
 appsize
     Application size intented for generated QR, 'small', 'medium' or 'small'. Defaults to 'small'.
-style
-    String with style to apply to QR modules. Defaults to 'default'.
-stylecolor
-    6 digit hex color to apply to main style. Defaults to '#000000' (pure black)
-innereyestyle
-    String with style to apply to inner eyes of QR. Defaults to 'default'.
-outereyestyle
-    String with style to apply to outer eyes of QR. Defaults to 'default'.
-innereyecolor
-    6 digit hex color to apply to inner eyes of QR. Defaults to '#000000' (pure black) 
-outereyecolor
-    6 digit hex color to apply to outer eyes of QR. Defaults to '#000000' (pure black)
-bgcolor
-    6 digit hex color to apply to QR background. Defaults to '#FFFFFF' (pure white)
 qrformat 
     String with QR format to generated. Supportin 'GIF', 'PNG', 'JPEG' and 'PDF'. Defaults to 'PDF'.
 
