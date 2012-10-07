@@ -80,7 +80,7 @@ methods for the requested resource::
 ------------------------
 422 Unprocessable Entity
 ------------------------
-Sending data will result in a 422 Unprocessable Entity response::
+Sending invalid data will result in a 422 Unprocessable Entity response::
 
    HTTP/1.1 422 Unprocessable Entity
    Content-Length: 149
