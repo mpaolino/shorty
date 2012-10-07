@@ -130,7 +130,7 @@ def reports(user, short):
         if value == None:
             return default
         if callable(validator) and not validator(value):
-            validation_errors.append({'resource': "report",
+            validation_errors.append({'resource': "reports",
                                       'field': name,
                                       'code': "invalid"})
             return default
@@ -140,7 +140,7 @@ def reports(user, short):
     to_string = get_optional('to', None, validate_date)
 
     if (from_string and to_string) and (to_string < from_string):
-        validation_errors.append({'resource': "report",
+        validation_errors.append({'resource': "reports",
                                   'field': 'from',
                                   'code': "invalid",
                                   'details': 'to date prior to from date'})
