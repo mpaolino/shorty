@@ -2,3 +2,4 @@ flask >= 0.7.2
 flask-sqlalchemy >= 0.12
 iso8601 >= 0.1.4
 Werkzeug >= 0.8.3
+qrlib >= 1.0.0
