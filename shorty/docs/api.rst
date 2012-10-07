@@ -318,9 +318,8 @@ Get QR for short URL
 ----------------
 Parameters/Input
 ----------------
-Note
+Note::
 
-::
       All the parameters can be encoded en the request URL or in the POST form.
       For a more detailed information on each parameter please refer to the qrlib
       documentation.
@@ -349,18 +348,18 @@ qrformat
 --------
 Response
 --------
-Status: 200 OK
-Content-Type: application/pdf
-<binary data>
-
-Status: 200 OK
-Content-Type: image/gif 
-<binary data>
-
-Status: 200 OK
-Content-Type: image/png
-<binary data>
-
-Status: 200 OK
-Content-Type: image/jpeg
-<binary data>
+| Status: 200 OK
+| Content-Type: application/pdf
+| <binary data>
+|
+| Status: 200 OK
+| Content-Type: image/gif 
+| <binary data>
+|
+| Status: 200 OK
+| Content-Type: image/png
+| <binary data>
+| 
+| Status: 200 OK
+| Content-Type: image/jpeg
+| <binary data>
