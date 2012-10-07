@@ -9,6 +9,8 @@ from werkzeug.contrib.fixers import ProxyFix
 try:
     from shorty import settings
 except ImportError:
+    import logging
+    import sys
     logging.error('Could not find settings. Aborting...')
     sys.exit(1)
 
