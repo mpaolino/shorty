@@ -18,9 +18,9 @@ All timestamps are returned in ISO 8601 format:
     YYYY-MM-DD HH:MM:SSZ
 
 
------------------------
+
 Status Code Definitions
------------------------
+=======================
 Each Status-Code is described below, including a description of which method(s)
 it can follow and any metainformation required in the response.
 
@@ -28,7 +28,7 @@ it can follow and any metainformation required in the response.
 Successful 2xx
 --------------
 
-
+------
 200 OK
 ------
 The request has succeeded. The information returned with the response is
@@ -45,7 +45,7 @@ GET an entity corresponding to the requested resource is sent in the response
 	   ...
 	}
 
-
+-----------
 201 Created
 -----------
 The request has been fulfilled and resulted in a new resource being created.
@@ -54,14 +54,14 @@ The request has been fulfilled and resulted in a new resource being created.
 
 	HTTP/1.1 201 Created
 
-
+----------------
 Client Error 4xx
 ----------------
 There are four possible types of client errors on API calls that receive
 request bodies:
 
 
-
+-------------
 404 Not Found
 -------------
 Sending invalid Request-URI will result in a 404 Not Found.
@@ -72,7 +72,7 @@ Sending invalid Request-URI will result in a 404 Not Found.
 
 
 
-
+----------------------
 405 Method Not Allowed
 ----------------------
 Sending invalid method will result in a 405 Method Not Allowed. 
@@ -87,7 +87,7 @@ methods for the requested resource.
    
 
 
-
+------------------------
 422 Unprocessable Entity
 ------------------------
 Sending invalid files will result in a 422 Unprocessable Entity response.
@@ -126,13 +126,13 @@ already_exists
 If resources have custom validation errors, they will be documented with the resource.
 
 
-
+----------------
 Server Error 5xx
 ----------------
 Response status codes beginning with the digit "5" indicate cases in which the
 server is incapable of performing the request.
 
-
+-------------------------
 500 Internal Server Error
 -------------------------
 The server encountered an unexpected condition which prevented it from fulfilling
@@ -140,7 +140,7 @@ the request.
 
 
 HTTP Verbs
-----------
+==========
 Where possible, this API strives to use appropriate HTTP verbs for each action.
 
 
@@ -152,38 +152,45 @@ DELETE
     Used for deleting resources.
 
 
-----------
-Expand URL
-----------
+Resources
+=========
+
+Expand (and redirect) URL
+-------------------------
 
 [GET] /:encoded
 
+----------
 Parameters
 ----------
 encoded
     *string* short URL token to decode an redirect to URL target
 
+--------
 Response
 --------
 Status: 302 Found
 Location: http://longurltoshorten.com/path/to/some/resource
 
-------------
+
 URL register
 ------------
 
 [POST] - /api/:user/url
 
+----------
 Parameters
 ----------
 user
     *string* Username, owner of URL
 
+-----
 Input
 -----
 target
     *string* Long URL to shorten
 
+--------
 Response
 --------
 Status: 200 OK
@@ -199,17 +206,18 @@ Status: 200 OK
     }
 
 
----------------------
+
 Get all URLs for user
 ---------------------
 [GET] /api/:user/url
 
+----------
 Parameters
 ----------
 page
     *integer* Page number of paginated results
 
-
+--------
 Response
 --------
 Status: 200 OK
@@ -237,12 +245,13 @@ Status: 200 OK
       ]
 
 
----------------
+
 Get URL details
 ---------------
 
 [GET] /api/:user/url/:short
 
+--------
 Response
 --------
 Status: 200 OK
@@ -258,12 +267,13 @@ Status: 200 OK
     }
 
 
----------------------
+
 URL Expansion reports
 ---------------------
 
 [GET|POST] /api/:user>/url/:short>/expansions
 
+----------------
 Parameters/Input
 ----------------
 page
@@ -273,6 +283,7 @@ from
 to
     *iso8601 date*. Only show expansions that happened until date, inclusive.
 
+--------
 Response
 --------
 
@@ -310,12 +321,13 @@ Response
     }
 
 
---------------------
+
 Get QR for short URL
 --------------------
 
 [GET|POST] /api/:user>/url/:short/qr
 
+----------------
 Parameters/Input
 ----------------
 Note::
@@ -344,6 +356,7 @@ bgcolor
 qrformat 
     String with QR format to generated. Supportin 'GIF', 'PNG', 'JPEG' and 'PDF'. Defaults to 'PDF'.
 
+--------
 Response
 --------
 Status: 200 OK
