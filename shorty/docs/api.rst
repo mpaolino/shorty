@@ -41,12 +41,22 @@ GET an entity corresponding to the requested resource is sent in the response::
 	   ...
 	}
 
+
 -----------
 201 Created
 -----------
 The request has been fulfilled and resulted in a new resource being created::
 
 	HTTP/1.1 201 Created
+
+
+--------------
+204 No Content
+--------------
+The request has been fulfilled but no data response will be returned::
+
+	HTTP/1.1 201 No Content
+
 
 ----------------
 Client Error 4xx
@@ -205,7 +215,7 @@ expansions.
 --------
 Response
 --------
-Status: 200 OK
+Status: 204 NO CONTENT
 
 
 Get all URLs for user

@@ -345,11 +345,12 @@ def delete_url(user, short):
         decoded_id = shortener.decode_url(short)
     except ValueError:
         abort(404)
-
     url = Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
     db.session.delete(url)
     db.session.commit()
-    return ('', 200)
+    response = make_response()
+    response.status_code = 204
+    return response
 
 
 def get_all_urls(user):
