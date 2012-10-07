@@ -194,6 +194,19 @@ Status: 200 OK
     }
 
 
+URL delete
+----------
+
+[DELETE] - /api/:user/url/:short
+
+Deletes URL for given short key. Will also delete all its associated 
+expansions.
+
+--------
+Response
+--------
+Status: 200 OK
+
 
 Get all URLs for user
 ---------------------

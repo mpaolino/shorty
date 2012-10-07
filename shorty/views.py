@@ -100,11 +100,13 @@ def url_register(user):
     # Only then we can ask for the encoded_key, and it will be calculated
     encoded_key = new_url.encoded_key
     db.session.commit()
-    return jsonify({'url': "%s/%s" % (request.base_url, encoded_key),
-                    'target': url,
-                    'short': encoded_key,
-                    'user': user,
-                    'creation_date': new_url.date_publish.isoformat(' ')})
+    response = jsonify({'url': "%s/%s" % (request.base_url, encoded_key),
+                        'target': url,
+                        'short': encoded_key,
+                        'user': user,
+                        'creation_date': new_url.date_publish.isoformat(' ')})
+    response.status_code = 201
+    return response
 
 
 def reports(user, short):
@@ -337,6 +339,19 @@ def get_url(user, short):
                     'url': request.base_url})
 
 
+def delete_url(user, short):
+    """Deletes URL for given user and short token"""
+    try:
+        decoded_id = shortener.decode_url(short)
+    except ValueError:
+        abort(404)
+
+    url = Url.query.filter_by(id=decoded_id, owner_id=user).first_or_404()
+    db.session.delete(url)
+    db.session.commit()
+    return ('', 200)
+
+
 def get_all_urls(user):
     """Returns all URLs defined for user"""
 
@@ -372,6 +387,6 @@ def get_all_urls(user):
         return jsonify(results)
 
     if result_output == 'protobuf':
-        return 'Sorry still no protobuf serialization for this one', 500
+        return ('Sorry still no protobuf serialization for this one', 500)
 
     abort(500)
