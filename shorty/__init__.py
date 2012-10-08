@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2012, Miguel Paolino <mpaolino@ideal.com.uy>
 from flask import Flask
 
 __authors__ = (u'Miguel Paolino <miguel@ideal.com.uy>')

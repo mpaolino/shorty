@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2012, Miguel Paolino <mpaolino@ideal.com.uy>
 from shorty import app
 # load the middleware from werkzeug
 # This middleware can be applied to add HTTP proxy support to an application

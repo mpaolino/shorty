@@ -1,4 +1,5 @@
 # *- coding: utf-8 -*-
+# Copyright (C) 2012, Miguel Paolino <mpaolino@ideal.com.uy>
 from shorty import app
 from shorty.database import db
 from shorty.libs import shortener

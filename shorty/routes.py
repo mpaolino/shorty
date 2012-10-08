@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2012, Miguel Paolino <mpaolino@ideal.com.uy>
 from shorty import app
 from shorty.views import (index, decode, reports, generate_qr_ceibal,
                           get_url, get_all_urls, delete_url)

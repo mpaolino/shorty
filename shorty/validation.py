@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2012, Miguel Paolino <mpaolino@ideal.com.uy>
 from shorty.settings.local import ALLOWED_REFERRERS_REGEXP
 import re
 import iso8601
