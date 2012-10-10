@@ -244,11 +244,11 @@ def generate_qr_ceibal():
     appsize = get_optional('appsize', 'small', validate_application_size)
     qr_format = get_optional('qrformat', 'PDF', validate_qr_format)
     style = 'heavyround'
-    style_color = '#195805'
+    style_color = '#46652F'
     inner_eye_style = 'heavyround'
     outer_eye_style = 'heavyround'
-    inner_eye_color = '#C21217'
-    outer_eye_color = '#22C13E'
+    inner_eye_color = '#CF3034'
+    outer_eye_color = '#84C44C'
 
     if validation_errors:
         raise ValidationFailed(validation_errors)
