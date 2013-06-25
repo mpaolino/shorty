@@ -59,7 +59,7 @@ class UASparser:
     cache_file_name = 'cache' 
     cache_dir = ''
     cache_data = None
-    update_interval = 3600*24*10 # 10 days
+    update_interval = 3600*24*30 # 30 days
     
     def __init__(self,cache_dir=None):
         """
